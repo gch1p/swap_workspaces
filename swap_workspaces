@@ -1,0 +1,71 @@
+#!/bin/bash
+
+workspace_exists() {
+    wmctrl -d | awk '{print $1}' | grep -w -- "${1}"
+}
+
+workspace_windows() {
+    wmctrl -l | {
+        while IFS= read -r line; do
+            local parts=($line)
+            local id="${parts[@]:0:1}"
+            local workspace=${parts[@]:1:1}
+            if [[ "$workspace" != "$1" ]]; then
+                continue
+            fi
+            echo "$id"
+        done
+    }
+}
+
+move_window() {
+    wmctrl -i -r "$1" -t "$2"
+}
+
+USAGE="A program to move all windows from workspace <1> to workspace <2> and
+vice versa.
+
+This is useful when you want to reorder workspaces but your DE doesn't have such
+feature (XFCE as an example).
+
+Usage:
+    $(basename "$0") <1> <2>
+    
+Dependencies:
+    wmctrl"
+
+FROM=$1
+TO=$2
+
+if [ ! -x "$(command -v wmctrl)" ]; then
+    echo "Please make sure that wmctrl is installed."
+    exit 1
+fi
+
+if [ -z "$FROM" ] || [ -z "$TO" ]; then 
+    echo "$USAGE"
+    exit 1
+fi
+
+if [ "$FROM" == "$TO" ]; then
+    exit
+fi
+
+if [[ ! $(workspace_exists "$FROM") ]]; then
+    echo "workspace $FROM not found"
+    exit 1
+elif [[ ! $(workspace_exists "$TO") ]]; then
+    echo "workspace $TO not found"
+    exit 1
+fi
+
+WINDOWS_FROM=($(workspace_windows "$FROM"))
+WINDOWS_TO=($(workspace_windows "$TO"))
+
+for id in "${WINDOWS_FROM[@]}"; do
+    move_window "$id" "$TO"
+done
+
+for id in "${WINDOWS_TO[@]}"; do
+    move_window "$id" "$FROM"
+done
