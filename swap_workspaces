@@ -28,21 +28,21 @@ move_window() {
 
 usage() {
 	cat <<-_EOF
-	A program to move all windows from workspace <1> to workspace <2> and
-	vice versa.
+	A program to move all windows from workspace <1> to workspace <2>.
 
-	If the first workspace number is not specified, current workspace is assumed.
+	If the first workspace is not specified, current workspace is assumed.
 	Workspace numbering starts with 0.
 
 	This is useful when you want to reorder workspaces but your DE doesn't have such
 	feature.
 
 	Usage:
-		$(basename "$0") [<1>] <2>
+	    $(basename "$0") [<1>] <2>
 
 	Dependencies:
-		wmctrl
+	    wmctrl
 	_EOF
+	exit 1
 }
 
 FROM=$1
@@ -55,8 +55,7 @@ fi
 
 if [ -z "$TO" ]; then
 	if [ -z "$FROM" ]; then
-		echo "$USAGE"
-		exit 1
+		usage
 	fi
 	TO="$FROM"
 	FROM=$(current_workspace)
