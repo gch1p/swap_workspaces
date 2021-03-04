@@ -8,6 +8,8 @@ DE doesn't have such feature (XFCE as an example).
 ## Requirements
 
 * wmctrl
+* awk
+* grep
 
 ## Usage
 
